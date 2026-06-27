@@ -16,6 +16,7 @@ This repository does not contain the enterprise control-plane backend, admin con
 ```bash
 pnpm install --frozen-lockfile
 pnpm catalog:test
+pnpm api:check
 pnpm typecheck
 pnpm test
 pnpm build
