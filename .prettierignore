@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.vitest-attachments
+src/**/routeTree.gen.ts
+scripts/generate-assets.mjs
+android/app/src/main/assets
+android/**/build
+ios/App/App/Assets.xcassets
+ios/App/App/capacitor.config.json
+ios/App/App/public
+ios/App/Pods
+pnpm-lock.yaml

@@ -1,0 +1,54 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+*.local
+local.properties
+
+# Logs and temporary artifacts
+logs/
+*.log
+pnpm-debug.log*
+.tmp/
+.vitest-attachments/
+**/__screenshots__/
+.DS_Store
+
+# Android generated files and signing material
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/res/xml/config.xml
+android/capacitor-cordova-android-plugins/
+*.jks
+*.keystore
+key.properties
+keystore.properties
+
+# iOS generated files and signing material
+ios/App/Pods/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/config.xml
+ios/capacitor-cordova-ios-plugins/
+DerivedData/
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+exportOptions.local.plist
+
+# Binary release artifacts
+*.apk
+*.aab
+*.ipa

@@ -1,0 +1,17 @@
+version: "2026-06-26-demo"
+data_centers:
+  - id: "dc-demo-01"
+    name: "示例数据中心01"
+    rooms:
+      - id: "room-demo-a"
+        name: "A机房"
+        racks:
+          - id: "rack-a01"
+            name: "A01"
+          - id: "rack-a02"
+            name: "A02"
+      - id: "room-demo-b"
+        name: "B机房"
+        racks:
+          - id: "rack-b01"
+            name: "B01"
