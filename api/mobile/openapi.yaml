@@ -1,0 +1,405 @@
+openapi: 3.1.2
+info:
+  title: Camera SN Mobile API
+  version: 1.0.0
+  summary: Public App contract for Camera SN control-plane mobile endpoints.
+  description: >-
+    This contract describes only the endpoints required by the Camera SN App.
+    It intentionally excludes admin, bootstrap, audit, inventory, deployment,
+    signing, and customer-specific details.
+servers:
+  - url: /api/v1
+tags:
+  - name: Auth
+    description: Operator authentication endpoints used by required App mode.
+  - name: Mobile
+    description: Operator mobile scanning endpoints.
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        default:
+          $ref: '#/components/responses/APIError'
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current authenticated user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        default:
+          $ref: '#/components/responses/APIError'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Logout accepted.
+        default:
+          $ref: '#/components/responses/APIError'
+  /auth/change-password:
+    post:
+      tags: [Auth]
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '204':
+          description: Password changed.
+        default:
+          $ref: '#/components/responses/APIError'
+  /mobile/context:
+    get:
+      tags: [Mobile]
+      operationId: getMobileContext
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Catalog context visible to the operator.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileContextResponse'
+        default:
+          $ref: '#/components/responses/APIError'
+  /mobile/scan-batches:
+    post:
+      tags: [Mobile]
+      operationId: createMobileScanBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMobileScanBatchRequest'
+      responses:
+        '201':
+          description: Mobile draft batch created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileScanBatch'
+        default:
+          $ref: '#/components/responses/APIError'
+  /mobile/scan-batches/{id}:
+    parameters:
+      - $ref: '#/components/parameters/BatchID'
+    get:
+      tags: [Mobile]
+      operationId: getMobileScanBatch
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Mobile scan batch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileScanBatch'
+        default:
+          $ref: '#/components/responses/APIError'
+  /mobile/scan-batches/{id}/submit:
+    parameters:
+      - $ref: '#/components/parameters/BatchID'
+    post:
+      tags: [Mobile]
+      operationId: submitMobileScanBatch
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitMobileScanBatchRequest'
+      responses:
+        '200':
+          description: Batch submission result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitMobileScanBatchResponse'
+        default:
+          $ref: '#/components/responses/APIError'
+  /mobile/scan-batches/{id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/BatchID'
+    post:
+      tags: [Mobile]
+      operationId: cancelMobileScanBatch
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cancelled draft batch.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileScanBatch'
+        default:
+          $ref: '#/components/responses/APIError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    BatchID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+  responses:
+    APIError:
+      description: Structured API error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIErrorResponse'
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      additionalProperties: false
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+    LoginResponse:
+      type: object
+      required: [access_token, token_type, expires_in, user]
+      additionalProperties: false
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          const: Bearer
+        expires_in:
+          type: integer
+          minimum: 1
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      required: [id, username, display_name, role, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        display_name:
+          type: string
+        role:
+          type: string
+          enum: [admin, operator]
+        status:
+          type: string
+          enum: [active, disabled]
+    ChangePasswordRequest:
+      type: object
+      required: [old_password, new_password]
+      additionalProperties: false
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 1
+    DataCenter:
+      type: object
+      required: [id, name, code, rooms]
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        name: { type: string }
+        code: { type: string }
+        rooms:
+          type: array
+          items: { $ref: '#/components/schemas/Room' }
+    Room:
+      type: object
+      required: [id, name, code, racks]
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        name: { type: string }
+        code: { type: string }
+        racks:
+          type: array
+          items: { $ref: '#/components/schemas/Rack' }
+    Rack:
+      type: object
+      required: [id, name, code]
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        name: { type: string }
+        code: { type: string }
+    MachineConfiguration:
+      type: object
+      required: [id, name]
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        name: { type: string }
+    MobileContextResponse:
+      type: object
+      required: [data_centers, machine_profiles]
+      additionalProperties: false
+      properties:
+        data_centers:
+          type: array
+          items: { $ref: '#/components/schemas/DataCenter' }
+        machine_profiles:
+          type: array
+          items: { $ref: '#/components/schemas/MachineConfiguration' }
+    CreateMobileScanBatchRequest:
+      type: object
+      required: [client_batch_id, data_center_id, room_id, machine_profile_id]
+      additionalProperties: false
+      properties:
+        client_batch_id: { type: string, minLength: 1 }
+        data_center_id: { type: string, minLength: 1 }
+        room_id: { type: string, minLength: 1 }
+        machine_profile_id: { type: string, minLength: 1 }
+        remark: { type: string }
+    MobileScanBatch:
+      type: object
+      required:
+        - id
+        - batch_no
+        - client_batch_id
+        - data_center_id
+        - room_id
+        - machine_profile_id
+        - status
+        - remark
+        - submitted_at
+      additionalProperties: false
+      properties:
+        id: { type: string }
+        batch_no: { type: string }
+        client_batch_id: { type: string }
+        data_center_id: { type: string }
+        room_id: { type: string }
+        machine_profile_id: { type: string }
+        status:
+          type: string
+          enum: [draft, submitted, accepted, rejected, cancelled]
+        remark: { type: string }
+        submitted_at:
+          type: [string, 'null']
+          format: date-time
+    SubmitScanItem:
+      type: object
+      required: [client_item_id, serial_number, barcode_format, raw_value, rack_id]
+      additionalProperties: false
+      properties:
+        client_item_id: { type: string, minLength: 1 }
+        serial_number: { type: string, minLength: 1 }
+        barcode_format: { type: string, minLength: 1 }
+        raw_value: { type: string, minLength: 1 }
+        rack_id: { type: string, minLength: 1 }
+        u_position:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 60
+    SubmitMobileScanBatchRequest:
+      type: object
+      required: [client_batch_id, items]
+      additionalProperties: false
+      properties:
+        client_batch_id: { type: string, minLength: 1 }
+        items:
+          type: array
+          minItems: 1
+          items: { $ref: '#/components/schemas/SubmitScanItem' }
+    SubmitScanItemResult:
+      type: object
+      required: [client_item_id, scan_item_id, serial_number, status, conflict_reason]
+      additionalProperties: false
+      properties:
+        client_item_id: { type: string }
+        scan_item_id: { type: string }
+        serial_number: { type: string }
+        status:
+          type: string
+          enum: [accepted, conflict]
+        conflict_reason:
+          type: [string, 'null']
+          enum: [SN_ALREADY_EXISTS, null]
+    SubmitMobileScanBatchResponse:
+      type: object
+      required: [batch_id, status, accepted_count, conflict_count, items]
+      additionalProperties: false
+      properties:
+        batch_id: { type: string }
+        status:
+          type: string
+          enum: [submitted, accepted]
+        accepted_count:
+          type: integer
+          minimum: 0
+        conflict_count:
+          type: integer
+          minimum: 0
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/SubmitScanItemResult' }
+    APIErrorResponse:
+      type: object
+      required: [error]
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          required: [code, message, request_id]
+          additionalProperties: true
+          properties:
+            code: { type: string }
+            message: { type: string }
+            request_id: { type: string }
+            details:
+              type: object
+              additionalProperties: true

@@ -32,17 +32,23 @@ jobs:
       - name: Install Playwright Chromium
         run: pnpm test:browser:install
 
-      - name: Validate catalog seed
+      - name: Validate mobile API contract
+        run: pnpm api:check
+
+      - name: Test catalog seed
         run: pnpm catalog:test
 
-      - name: Check app boundaries
+      - name: Check App boundaries
         run: pnpm boundary:check
 
-      - name: Type check
+      - name: Typecheck
         run: pnpm typecheck
 
-      - name: Run tests
+      - name: Test
         run: pnpm test
 
-      - name: Build standalone app
+      - name: Build standalone App
         run: pnpm build
+
+      - name: Build enterprise App
+        run: VITE_API_BASE_URL=https://api.example.com pnpm build:enterprise

@@ -15,6 +15,10 @@ Camera SN App is an offline-first field scanning application for recording serve
 
 This public repository contains the App source code and public protocol client needed by the mobile field workflow. It does not include the enterprise control-plane implementation, backend deployment, admin console, audit service, or private release automation.
 
+## Mobile API contract
+
+The required enterprise mode uses the public-safe contract in `api/mobile/openapi.yaml`. The private control plane is the server-side source of truth, and this repository keeps a synchronized copy for App development and CI validation.
+
 ## Development
 
 ```bash

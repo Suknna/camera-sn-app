@@ -12,6 +12,10 @@ VITE_API_BASE_URL=https://api.example.com pnpm build:enterprise
 
 `VITE_APP_CONTROL_PLANE_MODE=required` is set by the `build:enterprise` script. Standalone builds reject `VITE_API_BASE_URL` to avoid accidental network coupling.
 
+## Contract file
+
+The App-facing authentication and mobile scan endpoints are described in `api/mobile/openapi.yaml`. `VITE_API_BASE_URL` must be an origin such as `https://api.example.com`; the App client appends `/api/v1` according to the contract server URL.
+
 ## Transport Requirements
 
 - Production required-mode builds must use HTTPS.
